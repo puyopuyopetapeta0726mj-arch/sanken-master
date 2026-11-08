@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#172554"><title>三権分立マスター</title><style>
+:root{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;color:#172554;background:#eff6ff}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:linear-gradient(135deg,#dbeafe,#fef3c7)}main{max-width:850px;margin:auto;padding:20px 14px 60px}header{text-align:center;padding:16px}h1{font-size:clamp(28px,6vw,42px);margin:4px}h2{margin:0 0 12px}p{line-height:1.65}.panel{background:#fff;border-radius:22px;padding:22px;margin:15px 0;box-shadow:0 8px 24px #1e3a8a1a}.muted{color:#475569}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:12px}.btn{display:inline-block;cursor:pointer;border:0;border-radius:14px;background:#2563eb;color:#fff;padding:14px 18px;font-size:17px;font-weight:800;min-height:48px}.btn:focus-visible,.choice:focus-visible{outline:4px solid #f59e0b;outline-offset:3px}.btn.secondary{background:#e2e8f0;color:#172554}.btn.green{background:#15803d}.btn:disabled{opacity:.5;cursor:not-allowed}.mode{width:100%;text-align:left}.pill{display:inline-block;background:#dbeafe;color:#1e40af;padding:6px 12px;border-radius:999px;font-weight:700;margin:3px}.choice{display:block;width:100%;text-align:left;padding:16px;margin:10px 0;background:#f8fafc;border:2px solid #cbd5e1;border-radius:14px;font-size:17px;color:#0f172a;cursor:pointer}.choice.correct{background:#dcfce7;border-color:#16a34a}.choice.wrong{background:#fee2e2;border-color:#dc2626}.choice:disabled{cursor:default;opacity:1}.progress{height:12px;background:#dbeafe;border-radius:30px;overflow:hidden}.bar{height:100%;background:#2563eb;transition:width .2s}.badge{border:2px solid #cbd5e1;border-radius:14px;padding:12px;background:#f8fafc}.badge.earned{border-color:#eab308;background:#fef9c3}.badge strong{display:block}.small{font-size:14px}#toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#172554;color:white;padding:12px 20px;border-radius:12px;display:none;z-index:2;max-width:90vw}footer{text-align:center;color:#475569;font-size:13px;margin-top:20px}@media(max-width:500px){.panel{padding:17px}.btn{width:100%;margin:4px 0}}@media(prefers-reduced-motion:reduce){.bar{transition:none}}</style></head><body><main><header><div style="font-size:44px">🏛️⚖️🎮</div><h1>三権分立マスター</h1><div>国会・内閣・裁判所のしくみをゲームで学ぼう！</div></header><div id="app"></div><footer>学習記録はこのブラウザ内に保存されます。個人情報の入力は不要です。<br>学校の授業用・オフラインでも利用可能（HTMLを直接開く場合）。</footer></main><div id="toast" role="status" aria-live="polite"></div><script>
+'use strict';
+// 各問題: [設問, 正解, 誤答1, 誤答2, 誤答3, 解説]
+const BANK={
+ easy:[
+ ['法律をつくる国の機関は？','国会','内閣','裁判所','警察','国会は国の唯一の立法機関です。'],
+ ['法律にもとづいて政治を進める中心の機関は？','内閣','国会','最高裁判所','地方議会','内閣は行政権を担当します。'],
+ ['裁判を行う機関は？','裁判所','内閣','国会','省庁','裁判所は司法権を担当します。'],
+ ['国会が担当する権力は？','立法権','行政権','司法権','外交権','立法権は法律をつくる権力です。'],
+ ['内閣が担当する権力は？','行政権','立法権','司法権','選挙権','行政権は法律にもとづいて政治を進める権力です。'],
+ ['裁判所が担当する権力は？','司法権','行政権','立法権','予算権','司法権は法律に基づき争いを裁く権力です。'],
+ ['国の政治の権力を三つに分けるしくみは？','三権分立','地方自治','多数決','国民主権','三権分立は権力の集中を防ぐしくみです。'],
+ ['三権分立の大切な目的は？','権力の集中を防ぐ','選挙をなくす','法律をなくす','裁判をなくす','三つの権力が互いにチェックし合います。'],
+ ['国会を構成する二つの議院は？','衆議院と参議院','内閣と裁判所','県議会と市議会','警察と消防','日本の国会は二院制です。'],
+ ['国会議員を選ぶのはだれ？','国民（有権者）','内閣総理大臣','裁判官','天皇','国民は選挙で代表者を選びます。'],
+ ['内閣の中心となる人は？','内閣総理大臣','最高裁判所長官','衆議院議長','都道府県知事','内閣総理大臣は内閣を代表します。'],
+ ['内閣総理大臣を指名するのは？','国会','最高裁判所','警察','都道府県','国会が議決によって内閣総理大臣を指名します。'],
+ ['日本で最も上位にある裁判所は？','最高裁判所','家庭裁判所','地方裁判所','簡易裁判所','最高裁判所は司法の最高機関です。'],
+ ['法律よりも国の基本となる決まりは？','日本国憲法','校則','条例','省令','憲法は国の最高法規です。'],
+ ['国会で話し合って決めるものは？','法律','裁判の有罪・無罪','個別の逮捕','判決','法律の制定は国会の仕事です。'],
+ ['行政を行うのは？','内閣','裁判所','国会だけ','選挙管理委員会だけ','行政権は内閣に属します。'],
+ ['裁判官が判断する仕事は？','事件や争いの裁判','法律案の提出だけ','大臣の任命','国会議員の選挙','裁判官は法と良心に従い独立して職権を行います。'],
+ ['国会が国民の代表で構成される理由は？','国民の意見を政治に反映するため','裁判を速くするため','選挙をなくすため','法律を秘密にするため','選挙で選ばれた議員が国民を代表します。'],
+ ['三権が互いをチェックすることを何という？','抑制と均衡','一極集中','世襲制','直接裁判','権力を抑制し、均衡を保ちます。'],
+ ['三権分立で守ろうとしているものは？','国民の自由や権利','政治家だけの利益','法律の数','選挙の回数','権力の乱用を防ぐことが人権保障につながります。']
+ ],
+ medium:[
+ ['国会が内閣総理大臣を指名するのは、どの関係？','国会から内閣への働きかけ','裁判所から国会への働きかけ','内閣から裁判所への働きかけ','裁判所から内閣への働きかけ','国会には内閣総理大臣の指名権があります。'],
+ ['衆議院が内閣不信任決議を可決した場合、内閣は原則どうする？','10日以内に衆議院を解散するか総辞職する','必ず裁判所を解散する','参議院を解散する','何もしなくてよい','内閣は10日以内に衆議院が解散されない限り総辞職します。'],
+ ['衆議院を解散することを決めるのは、実質的には？','内閣','最高裁判所','参議院だけ','地方裁判所','衆議院の解散は内閣の助言と承認による国事行為です。'],
+ ['裁判所が法律の憲法適合性を判断する権限は？','違憲審査権','予算議決権','条約締結権','解散権','裁判所は具体的な事件の裁判で違憲審査を行います。'],
+ ['最高裁判所裁判官の国民審査は、だれが行う？','国民','内閣だけ','国会議員だけ','警察','国民は最高裁判所裁判官の国民審査に参加します。'],
+ ['裁判官をやめさせるため国会が設ける裁判所は？','弾劾裁判所','家庭裁判所','簡易裁判所','行政裁判所','国会は罷免の訴追を受けた裁判官を裁く弾劾裁判所を設けます。'],
+ ['国の予算を議決するのは？','国会','内閣だけ','裁判所','警察','予算は内閣が作成・提出し、国会が議決します。'],
+ ['国の予算案を作成して国会に提出するのは？','内閣','最高裁判所','国会議長だけ','都道府県議会','内閣は予算を作成して国会に提出します。'],
+ ['外国と条約を結ぶ仕事を行うのは？','内閣','裁判所','衆議院議長','市議会','条約の締結は内閣の仕事で、原則として国会の承認が必要です。'],
+ ['条約の締結について原則必要なのは？','国会の承認','最高裁判所の許可','都道府県の投票','警察の承認','内閣による条約締結には原則として国会の承認が必要です。'],
+ ['内閣の仕事を国会が調べる権限は？','国政調査権','違憲審査権','司法権','解散権','国会の各議院は国政調査を行えます。'],
+ ['内閣の大臣を任命するのは？','内閣総理大臣','最高裁判所長官','衆議院議長','国民審査','内閣総理大臣は国務大臣を任命します。'],
+ ['最高裁判所長官を指名するのは？','内閣','国会','参議院','地方議会','内閣が最高裁判所長官を指名し、天皇が任命します。'],
+ ['最高裁判所の長官以外の裁判官を任命するのは？','内閣','国会','都道府県知事','警察','最高裁判所の長官以外の裁判官は内閣が任命します。'],
+ ['法律に違反したかを裁判で判断するのは？','裁判所','内閣','国会の議長','総務省','司法権を担う裁判所が裁判します。'],
+ ['衆議院の解散後、総選挙は何日以内？','40日以内','10日以内','90日以内','1年以内','憲法は解散の日から40日以内の総選挙を定めています。'],
+ ['国会の議決で内閣総理大臣を指名する際、衆参で異なる場合に優越することがあるのは？','衆議院','参議院','最高裁判所','内閣','一定の条件の下で衆議院の議決が国会の議決となります。'],
+ ['国会が制定した法律を実施するため、内閣が制定するものは？','政令','判決','憲法改正案の国民投票','条例だけ','内閣は憲法・法律を実施するため政令を制定します。'],
+ ['裁判官が独立して判断できることはなぜ大切？','政治的な圧力に左右されないため','国会の代わりに法律を作るため','内閣をなくすため','裁判を秘密にするため','司法の独立は公正な裁判を支えます。'],
+ ['三権分立の図で国会から裁判所へ向かうチェックは？','裁判官の弾劾','衆議院の解散','政令の制定','条約の締結','国会は弾劾裁判所を設けて裁判官の罷免を審理します。']
+ ],
+ hard:[
+ ['国会が作った法律が憲法に反する疑いがある。具体的な裁判で判断するのは？','裁判所','内閣だけ','警察','選挙管理委員会','違憲審査権を持つ裁判所が判断します。'],
+ ['内閣が提出した予算案を審議して議決するのは？','国会','最高裁判所','警察','各省庁だけ','予算を作る内閣と議決する国会が役割を分担します。'],
+ ['衆議院で内閣不信任決議が可決され、10日以内に解散しなかった。どうなる？','内閣は総辞職する','裁判所が解散する','参議院が解散する','総理大臣が裁判官になる','憲法69条による内閣の総辞職です。'],
+ ['裁判官が国会議員から「この事件は有罪に」と言われた。適切なのは？','裁判官が独立して判断する','議員の指示に必ず従う','内閣に判決を決めてもらう','多数決で判決する','司法の独立を守る必要があります。'],
+ ['最高裁判所の裁判官が適任かを国民が判断する制度は？','国民審査','内閣不信任決議','国政調査','国民投票による憲法改正','最高裁判所裁判官の国民審査は司法への国民のチェックです。'],
+ ['内閣が法律と異なる内容の政令を出そうとした。正しい考えは？','政令は法律に反してはならない','政令は常に法律より上','内閣なら法律を無視できる','裁判所だけが政令を作れる','行政は憲法・法律に従って行われます。'],
+ ['内閣が外国と結んだ条約について、原則として承認するのは？','国会','最高裁判所','地方裁判所','警察','条約締結を行う内閣に対し、国会が承認を通じてチェックします。'],
+ ['国会が内閣の政策を調査し、説明を求めるのは何のため？','行政を監督するため','裁判の判決を決めるため','選挙を中止するため','憲法を無効にするため','国政調査権は国会の行政監視に役立ちます。'],
+ ['内閣が最高裁判所長官を指名することは、どの関係？','内閣から司法への関わり','司法から国会への関わり','国会から内閣への関わり','地方自治から司法への関わり','内閣は最高裁判所長官を指名します。'],
+ ['国会が裁判官の弾劾裁判所を設ける目的に最も近いのは？','裁判官の責任を問う制度を設ける','個々の判決を国会が書き直す','全ての裁判を国会が行う','内閣を解散する','弾劾裁判は一定の事由に基づき裁判官の罷免を判断します。'],
+ ['国会・内閣・裁判所がすべて同じ人の命令だけで動いたら？','権力の乱用が起こりやすい','権力のチェックが強まる','司法の独立が高まる','国民の権利が必ず守られる','権力の集中を防ぐために三権分立があります。'],
+ ['内閣が衆議院の解散を決めたとき、どの権力へのチェックになる？','立法権','司法権','地方自治権','国民の選挙権そのもの','内閣から国会への働きかけです。'],
+ ['裁判所が行政処分を違法と判断することは、どの関係？','司法が行政をチェックする','行政が司法をチェックする','立法が司法をチェックする','国民が立法をチェックする','裁判所は行政の行為も法に照らして審査できます。'],
+ ['国会が法律を作り、内閣が執行し、裁判所が争いを裁く理由は？','役割を分け互いにチェックするため','すべての仕事を一つに集めるため','裁判所をなくすため','選挙を不要にするため','分担と抑制・均衡が三権分立の基本です。'],
+ ['裁判所が法律を違憲と判断したら、法律を改める役割を持つのは？','国会','裁判所だけ','警察','市長だけ','裁判所は違憲判断を行い、法律の改正は国会の役割です。'],
+ ['国会議員の多数が賛成すれば憲法に反する法律でもよい？','よくない。憲法が最高法規だから','よい。多数決なら何でもよい','内閣が認めれば必ずよい','裁判所は判断できない','国会の立法権も憲法の制約を受けます。'],
+ ['国会が内閣総理大臣を指名し、内閣が衆議院の解散に関わる。この関係は？','互いにチェックし合う関係','どちらも司法権を担当','国会が裁判を行う関係','内閣が法律を最終議決する関係','立法と行政の間にも抑制と均衡があります。'],
+ ['行政の判断に不服がある人が裁判を求めることは何につながる？','権利の救済と行政のチェック','内閣による裁判官の命令','国会の解散','法律の自動廃止','司法による救済が行政の行き過ぎを防ぎます。'],
+ ['三権分立の図で「内閣→国会」に書くのに最も適切なのは？','衆議院の解散','内閣総理大臣の指名','裁判官の弾劾','法律の違憲審査','衆議院の解散は内閣から国会へのチェックです。'],
+ ['三権分立について最も正しい説明は？','独立した三権が役割を分け、相互に抑制する','三権は互いに一切関わらない','国会がすべての裁判の判決を決める','内閣が憲法より上にある','三権は完全に無関係ではなく、相互のチェックを通じて均衡を保ちます。']
+ ]};
+const KEYS=['easy','medium','hard'],NAMES={easy:'初級',medium:'中級',hard:'上級'};const ALL=KEYS.flatMap(k=>BANK[k].map((q,i)=>({id:k+'-'+i,level:k,q})));const byId=Object.fromEntries(ALL.map(q=>[q.id,q]));const STORE='sanken-master-v1';const empty=()=>({attempts:{},wrong:[],points:0,bestStreak:0,completed:[],earned:[],games:0});let data=empty();try{const v=JSON.parse(localStorage.getItem(STORE)||'null');if(v&&typeof v==='object')data={...empty(),...v,attempts:v.attempts||{},wrong:Array.isArray(v.wrong)?v.wrong:[],completed:Array.isArray(v.completed)?v.completed:[],earned:Array.isArray(v.earned)?v.earned:[]}}catch(e){};
+const BADGES=[['first','🌱','はじめの一歩','1問正解'],['ten','⭐','クイズ見習い','10問正解'],['thirty','🥉','政治博士のたまご','30問正解'],['sixty','🏅','全問制覇','60問すべてに正解'],['streak5','🔥','5連続正解','5問連続正解'],['streak10','⚡','10連続正解','10問連続正解'],['easy','🥉','初級マスター','初級20問すべて正解'],['medium','🥈','中級マスター','中級20問すべて正解'],['hard','🥇','上級マスター','上級20問すべて正解'],['review','🔁','復習の達人','復習モードで5問正解']];
+let session=null,screen='home';const app=document.getElementById('app');const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const save=()=>{try{localStorage.setItem(STORE,JSON.stringify(data))}catch(e){toast('保存できません。Safariの設定を確認してください。')}};const correctIds=()=>ALL.filter(x=>data.attempts[x.id]?.correct).map(x=>x.id);const title=()=>{let n=correctIds().length;return n===60?'三権分立グランドマスター':n>=45?'三権分立マスター':n>=25?'政治の達人':n>=10?'政治の研究員':'政治の見習い'};function toast(t){let e=document.getElementById('toast');e.textContent=t;e.style.display='block';clearTimeout(toast.timer);toast.timer=setTimeout(()=>e.style.display='none',2500)}function shuffle(a){let b=[...a];for(let i=b.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
+function updateBadges(){let n=correctIds().length,review=data.reviewCorrect||0;const cond={first:n>=1,ten:n>=10,thirty:n>=30,sixty:n===60,streak5:data.bestStreak>=5,streak10:data.bestStreak>=10,easy:BANK.easy.every((_,i)=>data.attempts['easy-'+i]?.correct),medium:BANK.medium.every((_,i)=>data.attempts['medium-'+i]?.correct),hard:BANK.hard.every((_,i)=>data.attempts['hard-'+i]?.correct),review:review>=5};for(const b of BADGES)if(cond[b[0]]&&!data.earned.includes(b[0])){data.earned.push(b[0]);toast('🏆 バッジ獲得！ '+b[2])}save()}
+function home(){screen='home';let n=correctIds().length;app.innerHTML=`<section class="panel"><h2>ようこそ！ 🎉</h2><p>現在の称号：<strong>${title()}</strong></p><div class="grid"><div><span class="pill">正解した問題 ${n}/60</span></div><div><span class="pill">合計ポイント ${data.points||0} pt</span></div><div><span class="pill">最高連続正解 ${data.bestStreak||0}</span></div></div><p class="muted small">一度でも正解した問題は「正解済み」として記録されます。各コースは20問です。</p><div class="progress"><div class="bar" style="width:${n/60*100}%"></div></div></section><section class="panel"><h2>コースを選ぼう</h2><div class="grid">${KEYS.map((k,i)=>`<button class="btn mode" data-mode="${k}">${['🌱','🚀','👑'][i]} ${NAMES[k]}<br><span class="small">${BANK[k].filter((_,j)=>data.attempts[k+'-'+j]?.correct).length}/20問 正解済み</span></button>`).join('')}</div><p><button class="btn green" data-mode="review" ${data.wrong.length?'':'disabled'}>🔁 間違えた問題を復習（${data.wrong.length}問）</button></p><p><button class="btn secondary" data-action="badges">🏆 バッジ一覧</button> <button class="btn secondary" data-action="help">📖 遊び方</button></p></section>`;app.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>start(b.dataset.mode));app.querySelector('[data-action=badges]').onclick=badges;app.querySelector('[data-action=help]').onclick=help}
+function help(){screen='help';app.innerHTML=`<section class="panel"><h2>📖 遊び方</h2><p>初級・中級・上級にはそれぞれ20問あります。各回で20問に挑戦し、正解すると10ポイント、連続正解なら追加ポイントがもらえます（最大+10ポイント）。</p><p>間違えた問題は復習リストに入り、復習で正解するとリストから消えます。バッジは条件を満たすと獲得できます。途中でやめても、回答済みの学習記録は残ります。</p><p><strong>注意：</strong>保存先はこの端末・このブラウザです。プライベートブラウズ、履歴・サイトデータの削除、別の端末への変更で記録が失われる場合があります。先生が児童の成績を自動収集する機能はありません。</p><button class="btn secondary" data-back>← ホームへ</button></section>`;app.querySelector('[data-back]').onclick=home}
+function badges(){screen='badges';app.innerHTML=`<section class="panel"><h2>🏆 バッジコレクション</h2><p>獲得済み ${data.earned.length}/${BADGES.length}個　称号：<strong>${title()}</strong></p><div class="grid">${BADGES.map(b=>`<div class="badge ${data.earned.includes(b[0])?'earned':''}"><div style="font-size:30px">${data.earned.includes(b[0])?b[1]:'🔒'}</div><strong>${b[2]}</strong><span class="small">${b[3]}</span></div>`).join('')}</div><p><button class="btn secondary" data-back>← ホームへ</button></p></section>`;app.querySelector('[data-back]').onclick=home}
+function start(mode){let ids=mode==='review'?data.wrong.filter(id=>byId[id]):ALL.filter(q=>q.level===mode).map(q=>q.id);if(!ids.length){toast('復習する問題がありません');return}session={mode,ids:shuffle(ids),index:0,streak:0,score:0,answered:false,correct:0};question()}
+function question(){screen='quiz';let s=session,id=s.ids[s.index],item=byId[id],q=item.q;s.answered=false;let options=shuffle(q.slice(1,5));s.options=options;app.innerHTML=`<section class="panel"><div class="grid"><span class="pill">${s.mode==='review'?'🔁 復習':NAMES[s.mode]}</span><span class="pill">${s.index+1}/${s.ids.length}問</span><span class="pill">⭐ ${s.score} pt</span><span class="pill">🔥 ${s.streak}連続</span></div><div class="progress" style="margin:16px 0"><div class="bar" style="width:${s.index/s.ids.length*100}%"></div></div><h2>${esc(q[0])}</h2><div id="choices">${options.map((o,i)=>`<button class="choice" data-choice="${i}">${['A','B','C','D'][i]}. ${esc(o)}</button>`).join('')}</div><div id="feedback" aria-live="polite"></div><p><button class="btn secondary" id="quit">← ホームに戻る</button></p></section>`;app.querySelectorAll('[data-choice]').forEach(b=>b.onclick=()=>answer(Number(b.dataset.choice)));app.querySelector('#quit').onclick=()=>{session=null;home()}}
+function answer(i){let s=session;if(s.answered)return;s.answered=true;let id=s.ids[s.index],q=byId[id].q,ok=s.options[i]===q[1];data.attempts[id]??={tries:0,correct:false};data.attempts[id].tries++;if(ok){data.attempts[id].correct=true;s.streak++;s.correct++;data.bestStreak=Math.max(data.bestStreak,s.streak);let gain=10+Math.min(10,(s.streak-1)*2);s.score+=gain;data.points=(data.points||0)+gain;if(s.mode==='review')data.reviewCorrect=(data.reviewCorrect||0)+1;data.wrong=data.wrong.filter(x=>x!==id)}else{s.streak=0;if(!data.wrong.includes(id))data.wrong.push(id)}app.querySelectorAll('[data-choice]').forEach(b=>{b.disabled=true;if(s.options[Number(b.dataset.choice)]===q[1])b.classList.add('correct');else if(Number(b.dataset.choice)===i)b.classList.add('wrong')});app.querySelector('#feedback').innerHTML=`<div class="panel" style="background:${ok?'#f0fdf4':'#fff1f2'};box-shadow:none"><h2>${ok?'🎉 正解！':'💡 おしい！'}</h2><p><strong>正解：${esc(q[1])}</strong></p><p>${esc(q[5])}</p><button class="btn" id="next">${s.index+1===s.ids.length?'結果を見る':'次の問題へ →'}</button></div>`;app.querySelector('#next').onclick=()=>{s.index++;if(s.index>=s.ids.length)result();else question()};updateBadges()}
+function result(){let s=session;data.games=(data.games||0)+1;data.completed.push({mode:s.mode,date:new Date().toISOString(),correct:s.correct,total:s.ids.length,score:s.score});data.completed=data.completed.slice(-30);save();screen='result';app.innerHTML=`<section class="panel" style="text-align:center"><div style="font-size:60px">${s.correct===s.ids.length?'🏆':'🎊'}</div><h2>チャレンジ終了！</h2><p style="font-size:25px;font-weight:800">${s.correct} / ${s.ids.length}問 正解</p><p>今回の獲得：${s.score}ポイント</p><p>現在の称号：<strong>${title()}</strong></p><p><button class="btn" id="home">ホームへ</button></p><p><button class="btn green" id="review" ${data.wrong.length?'':'disabled'}>間違えた問題を復習</button></p></section>`;app.querySelector('#home').onclick=home;app.querySelector('#review').onclick=()=>start('review');session=null}
+updateBadges();home();
+</script></body></html>
